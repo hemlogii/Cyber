@@ -1,0 +1,2847 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEUROSHIELD XDR // Enterprise Broadcast Security Suite</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+         :root {
+            --bg-primary: #0a0b10;
+            --bg-secondary: #11121a;
+            --bg-tertiary: #161722;
+            --bg-hover: #1c1e2e;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-medium: rgba(255, 255, 255, 0.1);
+            --border-strong: rgba(0, 240, 255, 0.25);
+            --text-primary: #e8e8ef;
+            --text-secondary: #8b8d9e;
+            --text-muted: #5a5c6e;
+            --accent-cyan: #00d4ff;
+            --accent-cyan-glow: rgba(0, 212, 255, 0.3);
+            --accent-pink: #ff2d95;
+            --accent-pink-glow: rgba(255, 45, 149, 0.3);
+            --accent-green: #00e676;
+            --accent-green-glow: rgba(0, 230, 118, 0.3);
+            --accent-red: #ff1744;
+            --accent-red-glow: rgba(255, 23, 68, 0.3);
+            --accent-yellow: #ffc400;
+            --accent-yellow-glow: rgba(255, 196, 0, 0.3);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
+            --shadow-glow-cyan: 0 0 20px var(--accent-cyan-glow);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Ambient Background */
+        
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 212, 255, 0.07), transparent), radial-gradient(ellipse 60% 40% at 80% 90%, rgba(255, 45, 149, 0.05), transparent);
+            pointer-events: none;
+        }
+        
+        .ambient-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 40%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 40%, transparent 80%);
+        }
+        /* Scanlines */
+        
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 2px, rgba(0, 0, 0, 0.15) 4px);
+            pointer-events: none;
+            opacity: 0.4;
+        }
+        /* App Container */
+        
+        .app {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            grid-template-rows: 64px 1fr 48px;
+            height: 100vh;
+            transition: var(--transition-smooth);
+        }
+        /* ========== SIDEBAR ========== */
+        
+        .sidebar {
+            grid-row: 1 / -1;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent, var(--accent-cyan), transparent);
+            opacity: 0.3;
+        }
+        
+        .sidebar-brand {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--accent-cyan-glow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+        
+        .brand-text {
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, var(--text-primary), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .brand-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+        }
+        
+        .nav-section {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 16px 12px 8px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            position: relative;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--border-medium);
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.1), transparent);
+            color: var(--accent-cyan);
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 20px;
+            background: var(--accent-cyan);
+            border-radius: 0 3px 3px 0;
+            box-shadow: 0 0 10px var(--accent-cyan-glow);
+        }
+        
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            opacity: 0.7;
+            transition: var(--transition-fast);
+        }
+        
+        .nav-item:hover .nav-icon,
+        .nav-item.active .nav-icon {
+            opacity: 1;
+        }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent-red);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            animation: pulse-badge 2s infinite;
+        }
+        
+        @keyframes pulse-badge {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 var(--accent-red-glow);
+            }
+            50% {
+                box-shadow: 0 0 0 4px var(--accent-red-glow);
+            }
+        }
+        
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        
+        .system-status {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+        }
+        
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green-glow);
+            animation: blink-dot 2s infinite;
+        }
+        
+        @keyframes blink-dot {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        
+        .status-bar-fill {
+            height: 4px;
+            background: var(--bg-primary);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        
+        .status-bar-inner {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-bar-inner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: bar-shimmer 2s infinite;
+        }
+        
+        @keyframes bar-shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        
+        .status-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+        /* ========== TOP BAR ========== */
+        
+        .topbar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: relative;
+        }
+        
+        .topbar::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            opacity: 0.3;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        
+        .breadcrumb-item {
+            color: var(--text-muted);
+            transition: var(--transition-fast);
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .breadcrumb-sep {
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+        
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px 8px 32px;
+            color: var(--text-primary);
+            font-size: 13px;
+            width: 240px;
+            outline: none;
+            transition: var(--transition-fast);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .search-box input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px var(--accent-cyan-glow);
+        }
+        
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .topbar-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            position: relative;
+        }
+        
+        .topbar-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        
+        .topbar-btn .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            border: 2px solid var(--bg-secondary);
+            animation: pulse-badge 2s infinite;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            color: white;
+            cursor: pointer;
+            border: 2px solid var(--border-medium);
+            transition: var(--transition-fast);
+        }
+        
+        .user-avatar:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px var(--accent-cyan-glow);
+        }
+        /* ========== MAIN CONTENT ========== */
+        
+        .main {
+            overflow: hidden;
+            position: relative;
+            background: var(--bg-primary);
+        }
+        
+        .screen {
+            position: absolute;
+            inset: 0;
+            overflow-y: auto;
+            padding: 24px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: var(--transition-slow);
+            pointer-events: none;
+        }
+        
+        .screen.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+        
+        .screen::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .screen::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .screen::-webkit-scrollbar-thumb {
+            background: var(--border-medium);
+            border-radius: 3px;
+        }
+        /* ========== DASHBOARD SCREEN ========== */
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+        
+        .dash-header-stats {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-fast);
+        }
+        
+        .stat-card:hover {
+            border-color: var(--border-medium);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));
+            opacity: 0.5;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+        
+        .stat-change {
+            font-size: 12px;
+            margin-top: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .stat-change.up {
+            color: var(--accent-green);
+        }
+        
+        .stat-change.down {
+            color: var(--accent-red);
+        }
+        
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition-fast);
+        }
+        
+        .panel:hover {
+            border-color: var(--border-medium);
+        }
+        
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .panel-title::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 8px var(--accent-cyan-glow);
+            animation: blink-dot 2s infinite;
+        }
+        
+        .panel-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .panel-btn {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .panel-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--accent-cyan);
+        }
+        
+        .panel-body {
+            flex: 1;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #radarCanvas {
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+        }
+        
+        .threat-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .threat-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+            cursor: pointer;
+        }
+        
+        .threat-row:hover {
+            border-color: var(--border-medium);
+            background: var(--bg-hover);
+            transform: translateX(4px);
+        }
+        
+        .threat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .threat-ip {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .threat-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        .threat-severity {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .severity-critical {
+            background: rgba(255, 23, 68, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+        }
+        
+        .severity-high {
+            background: rgba(255, 196, 0, 0.15);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(255, 196, 0, 0.3);
+        }
+        
+        .severity-medium {
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        .threat-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        .threat-action {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-medium);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-size: 12px;
+        }
+        
+        .threat-action:hover {
+            background: var(--accent-red);
+            color: white;
+            border-color: var(--accent-red);
+        }
+        /* ========== FIREWALL SCREEN ========== */
+        
+        .firewall-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            height: 100%;
+        }
+        
+        .rules-table-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .table-toolbar {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .toolbar-left {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .toolbar-right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .filter-chip {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+            background: var(--bg-tertiary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            transition: var(--transition-fast);
+        }
+        
+        .data-table tbody tr {
+            transition: var(--transition-fast);
+        }
+        
+        .data-table tbody tr:hover {
+            background: var(--bg-hover);
+        }
+        
+        .data-table tbody tr:hover td {
+            color: var(--text-primary);
+        }
+        
+        .rule-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .rule-status.active {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--accent-green);
+        }
+        
+        .rule-status.inactive {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+        }
+        
+        .rule-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        
+        .rule-status.active .rule-status-dot {
+            background: var(--accent-green);
+            box-shadow: 0 0 6px var(--accent-green-glow);
+        }
+        
+        .rule-status.inactive .rule-status-dot {
+            background: var(--text-muted);
+        }
+        
+        .rule-actions {
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: var(--transition-fast);
+        }
+        
+        .data-table tbody tr:hover .rule-actions {
+            opacity: 1;
+        }
+        
+        .rule-action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-medium);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-size: 11px;
+        }
+        
+        .rule-action-btn:hover {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+            border-color: var(--accent-cyan);
+        }
+        
+        .firewall-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .stat-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px;
+        }
+        
+        .stat-box-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        
+        .big-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .mini-chart {
+            height: 60px;
+            margin-top: 12px;
+            position: relative;
+        }
+        
+        .mini-chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 8px;
+            border-radius: 4px 4px 0 0;
+            background: linear-gradient(to top, var(--accent-cyan), var(--accent-pink));
+            transition: height 0.5s ease;
+            opacity: 0.7;
+        }
+        
+        .mini-chart-bar:hover {
+            opacity: 1;
+        }
+        /* ========== USERS SCREEN ========== */
+        
+        .users-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 20px;
+            height: 100%;
+        }
+        
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+            cursor: pointer;
+        }
+        
+        .user-card:hover {
+            border-color: var(--border-medium);
+            background: var(--bg-hover);
+        }
+        
+        .user-avatar-lg {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+            flex-shrink: 0;
+            border: 2px solid var(--border-medium);
+        }
+        
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-role {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .user-status.online {
+            color: var(--accent-green);
+        }
+        
+        .user-status.offline {
+            color: var(--text-muted);
+        }
+        
+        .user-status.suspended {
+            color: var(--accent-red);
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .user-status.online .status-indicator {
+            background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green-glow);
+        }
+        
+        .user-status.offline .status-indicator {
+            background: var(--text-muted);
+        }
+        
+        .user-status.suspended .status-indicator {
+            background: var(--accent-red);
+        }
+        
+        .user-last {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .user-detail-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        
+        .detail-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 24px;
+            color: white;
+            border: 3px solid var(--border-medium);
+            box-shadow: 0 0 20px var(--accent-cyan-glow);
+        }
+        
+        .detail-info h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .detail-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        .detail-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .detail-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 13px;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: var(--text-secondary);
+        }
+        
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        
+        .detail-value.success {
+            color: var(--accent-green);
+        }
+        
+        .detail-value.warn {
+            color: var(--accent-yellow);
+        }
+        
+        .detail-value.danger {
+            color: var(--accent-red);
+        }
+        
+        .detail-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: auto;
+        }
+        
+        .btn {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-family: 'Inter', sans-serif;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), #0088cc);
+            color: var(--bg-primary);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 0 20px var(--accent-cyan-glow);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-medium);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--accent-cyan);
+        }
+        
+        .btn-danger {
+            background: rgba(255, 23, 68, 0.1);
+            color: var(--accent-red);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: var(--accent-red);
+            color: white;
+        }
+        /* ========== ENCRYPTION SCREEN ========== */
+        
+        .enc-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+        
+        .enc-visual {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .enc-ring-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+        }
+        
+        .enc-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid transparent;
+        }
+        
+        .enc-ring-1 {
+            border-color: rgba(0, 212, 255, 0.3);
+            animation: rotate-cw 20s linear infinite;
+        }
+        
+        .enc-ring-2 {
+            inset: 20px;
+            border-color: rgba(255, 45, 149, 0.3);
+            animation: rotate-ccw 15s linear infinite;
+        }
+        
+        .enc-ring-3 {
+            inset: 40px;
+            border-color: rgba(0, 230, 118, 0.3);
+            animation: rotate-cw 10s linear infinite;
+        }
+        
+        @keyframes rotate-cw {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes rotate-ccw {
+            from {
+                transform: rotate(360deg);
+            }
+            to {
+                transform: rotate(0deg);
+            }
+        }
+        
+        .enc-center {
+            position: absolute;
+            inset: 60px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 2px solid var(--accent-cyan);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 40px var(--accent-cyan-glow);
+        }
+        
+        .enc-center-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+        
+        .enc-center-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent-cyan);
+            letter-spacing: 2px;
+        }
+        
+        .enc-data-flow {
+            position: absolute;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--accent-cyan);
+            opacity: 0.3;
+            animation: float-data 8s linear infinite;
+        }
+        
+        @keyframes float-data {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-200px) translateX(50px);
+                opacity: 0;
+            }
+        }
+        
+        .enc-keys-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .key-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            transition: var(--transition-fast);
+            cursor: pointer;
+        }
+        
+        .key-card:hover {
+            border-color: var(--accent-cyan);
+            background: var(--bg-hover);
+        }
+        
+        .key-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .key-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .key-algo {
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--accent-cyan);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .key-fingerprint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-primary);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+        
+        .key-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        .key-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .key-status.active {
+            color: var(--accent-green);
+        }
+        
+        .key-status.expired {
+            color: var(--accent-red);
+        }
+        
+        .key-status.rotating {
+            color: var(--accent-yellow);
+        }
+        /* ========== FOOTER ========== */
+        
+        .footer {
+            grid-column: 2;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        .footer-left {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .footer-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .footer-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+        
+        .footer-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .version-tag {
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+        }
+        /* ========== MODAL ========== */
+        
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-lg);
+            width: 480px;
+            max-width: 90vw;
+            box-shadow: var(--shadow-md), 0 0 40px rgba(0, 0, 0, 0.5);
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+        
+        .modal-overlay.open .modal {
+            transform: scale(1) translateY(0);
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-size: 16px;
+        }
+        
+        .modal-close:hover {
+            background: var(--accent-red);
+            color: white;
+            border-color: var(--accent-red);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: var(--transition-fast);
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px var(--accent-cyan-glow);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        
+        .form-select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px var(--accent-cyan-glow);
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        /* Toast */
+        
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-md);
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-width: 300px;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .toast-success .toast-icon {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--accent-green);
+        }
+        
+        .toast-error .toast-icon {
+            background: rgba(255, 23, 68, 0.15);
+            color: var(--accent-red);
+        }
+        
+        .toast-info .toast-icon {
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--accent-cyan);
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .toast-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        /* Activity log mini */
+        
+        .activity-log {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 12px;
+            animation: fade-in 0.3s ease;
+        }
+        
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .log-time {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            font-size: 11px;
+            flex-shrink: 0;
+            width: 70px;
+        }
+        
+        .log-text {
+            color: var(--text-secondary);
+        }
+        
+        .log-text.success {
+            color: var(--accent-green);
+        }
+        
+        .log-text.error {
+            color: var(--accent-red);
+        }
+        
+        .log-text.warn {
+            color: var(--accent-yellow);
+        }
+        /* Toggle Switch */
+        
+        .toggle {
+            width: 40px;
+            height: 22px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-medium);
+            border-radius: 11px;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        
+        .toggle.active {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+        
+        .toggle-knob {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: var(--transition-fast);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .toggle.active .toggle-knob {
+            left: 20px;
+        }
+        /* Scrollbar */
+        
+         ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: var(--border-medium);
+            border-radius: 3px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+    <base target="_blank">
+</head>
+
+<body>
+    <div class="ambient-bg"></div>
+    <div class="ambient-grid"></div>
+    <div class="scanlines"></div>
+
+    <div class="app">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-text">NEUROSHIELD</div>
+                    <div class="brand-sub">Broadcast Security Suite</div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">Operations</div>
+                <div class="nav-item active" data-screen="dashboard" onclick="navigateTo('dashboard')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span>Dashboard</span>
+                    <span class="nav-badge">3</span>
+                </div>
+                <div class="nav-item" data-screen="firewall" onclick="navigateTo('firewall')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Firewall Rules</span>
+                </div>
+                <div class="nav-item" data-screen="users" onclick="navigateTo('users')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                    <span>User Management</span>
+                </div>
+                <div class="nav-item" data-screen="encryption" onclick="navigateTo('encryption')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>Encryption Keys</span>
+                </div>
+
+                <div class="nav-section">Analytics</div>
+                <div class="nav-item" onclick="showToast('Coming in v4.3', 'info')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 9 2.83"/><path d="M22 12v4"/><path d="M22 12h-4"/></svg>
+                    <span>Threat Intel</span>
+                </div>
+                <div class="nav-item" onclick="showToast('Coming in v4.3', 'info')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span>Audit Logs</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <div class="status-header">
+                        <div class="status-dot"></div>
+                        <span>System Health</span>
+                    </div>
+                    <div class="status-bar-fill">
+                        <div class="status-bar-inner" style="width: 94%; background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));"></div>
+                    </div>
+                    <div class="status-labels">
+                        <span>CPU</span>
+                        <span>94% Secure</span>
+                    </div>
+                    <div class="status-bar-fill" style="margin-top: 8px;">
+                        <div class="status-bar-inner" style="width: 87%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));"></div>
+                    </div>
+                    <div class="status-labels">
+                        <span>Memory</span>
+                        <span>87% Protected</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <div class="breadcrumb">
+                <span class="breadcrumb-item">NEUROSHIELD</span>
+                <span class="breadcrumb-sep">›</span>
+                <span class="breadcrumb-item active" id="breadcrumbActive">Dashboard</span>
+            </div>
+            <div class="topbar-actions">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search threats, IPs, users..." id="globalSearch">
+                </div>
+                <button class="topbar-btn" onclick="showToast('Notifications cleared', 'success')">
+                    🔔
+                    <span class="notification-dot"></span>
+                </button>
+                <button class="topbar-btn" onclick="showToast('Settings panel coming soon', 'info')">⚙️</button>
+                <div class="user-avatar" style="background: linear-gradient(135deg, #00d4ff, #ff2d95);">AD</div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+            <!-- DASHBOARD SCREEN -->
+            <div class="screen active" id="screen-dashboard">
+                <div class="dashboard-grid">
+                    <div class="dash-header-stats">
+                        <div class="stat-card">
+                            <div class="stat-label">Security Score</div>
+                            <div class="stat-value" style="color: var(--accent-green);">94.2%</div>
+                            <div class="stat-change up">▲ 2.4% from last week</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Threats Blocked</div>
+                            <div class="stat-value" style="color: var(--accent-cyan);">12,847</div>
+                            <div class="stat-change up">▲ 18% from yesterday</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Active Sessions</div>
+                            <div class="stat-value" style="color: var(--accent-yellow);">42</div>
+                            <div class="stat-change down">▼ 3 from peak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Uptime</div>
+                            <div class="stat-value" style="color: var(--accent-pink);">99.97%</div>
+                            <div class="stat-change up">▲ 0.02% SLA</div>
+                        </div>
+                    </div>
+
+                    <div class="panel" style="grid-row: 2 / 4;">
+                        <div class="panel-header">
+                            <div class="panel-title">Threat Detection Radar</div>
+                            <div class="panel-actions">
+                                <button class="panel-btn" onclick="runRadarScan()">Scan</button>
+                                <button class="panel-btn" onclick="clearRadar()">Clear</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="radarCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">Live Threat Feed</div>
+                            <div class="panel-actions">
+                                <button class="panel-btn" onclick="blockAllThreats()">Block All</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="threat-feed" id="threatFeed"></div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">System Activity</div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="activity-log" id="activityLog"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FIREWALL SCREEN -->
+            <div class="screen" id="screen-firewall">
+                <div class="firewall-layout">
+                    <div class="rules-table-container">
+                        <div class="table-toolbar">
+                            <div class="toolbar-left">
+                                <button class="filter-chip active" onclick="filterRules('all', this)">All Rules</button>
+                                <button class="filter-chip" onclick="filterRules('active', this)">Active</button>
+                                <button class="filter-chip" onclick="filterRules('inactive', this)">Inactive</button>
+                            </div>
+                            <div class="toolbar-right">
+                                <button class="panel-btn" onclick="openModal('addRule')">+ Add Rule</button>
+                            </div>
+                        </div>
+                        <div style="overflow-y: auto; flex: 1;">
+                            <table class="data-table" id="rulesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Rule Name</th>
+                                        <th>Source</th>
+                                        <th>Destination</th>
+                                        <th>Action</th>
+                                        <th>Status</th>
+                                        <th>Hits</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rulesTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="firewall-stats">
+                        <div class="stat-box">
+                            <div class="stat-box-title">Total Rules</div>
+                            <div class="big-number" id="totalRules">24</div>
+                            <div class="mini-chart" id="rulesChart"></div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-title">Blocked Today</div>
+                            <div class="big-number" style="color: var(--accent-red);" id="blockedToday">3,421</div>
+                            <div class="mini-chart" id="blockedChart"></div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-title">Allowed Today</div>
+                            <div class="big-number" style="color: var(--accent-green);" id="allowedToday">89,204</div>
+                            <div class="mini-chart" id="allowedChart"></div>
+                        </div>
+                        <div class="panel" style="flex: 1;">
+                            <div class="panel-header">
+                                <div class="panel-title">Recent Blocks</div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="activity-log" id="firewallLog"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USERS SCREEN -->
+            <div class="screen" id="screen-users">
+                <div class="users-layout">
+                    <div class="rules-table-container">
+                        <div class="table-toolbar">
+                            <div class="toolbar-left">
+                                <button class="filter-chip active" onclick="filterUsers('all', this)">All Users</button>
+                                <button class="filter-chip" onclick="filterUsers('online', this)">Online</button>
+                                <button class="filter-chip" onclick="filterUsers('admin', this)">Admins</button>
+                            </div>
+                            <div class="toolbar-right">
+                                <button class="panel-btn" onclick="openModal('addUser')">+ Add User</button>
+                            </div>
+                        </div>
+                        <div style="overflow-y: auto; flex: 1; padding: 8px;" id="usersList"></div>
+                    </div>
+
+                    <div class="user-detail-panel" id="userDetailPanel">
+                        <div class="detail-header">
+                            <div class="detail-avatar" id="detailAvatar" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));">AD</div>
+                            <div class="detail-info">
+                                <h3 id="detailName">Admin Director</h3>
+                                <p id="detailRole">Super Administrator</p>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="detail-section-title">Account Details</div>
+                            <div class="detail-row">
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value" id="detailEmail">admin@neuroshield.tv</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">User ID</span>
+                                <span class="detail-value" id="detailId">USR-8922-AD</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">2FA Status</span>
+                                <span class="detail-value success" id="detail2fa">Enabled (TOTP)</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Last Login</span>
+                                <span class="detail-value" id="detailLast">2026-05-23 17:42 UTC</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">IP Address</span>
+                                <span class="detail-value" id="detailIP">203.0.113.45</span>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="detail-section-title">Permissions</div>
+                            <div class="detail-row">
+                                <span class="detail-label">Broadcast Control</span>
+                                <span class="detail-value success">Full Access</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">User Management</span>
+                                <span class="detail-value success">Full Access</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Firewall Config</span>
+                                <span class="detail-value success">Full Access</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">API Keys</span>
+                                <span class="detail-value warn">Read Only</span>
+                            </div>
+                        </div>
+
+                        <div class="detail-actions">
+                            <button class="btn btn-secondary" onclick="showToast('User settings saved', 'success')">Edit Profile</button>
+                            <button class="btn btn-danger" onclick="showToast('User suspended', 'error')">Suspend</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ENCRYPTION SCREEN -->
+            <div class="screen" id="screen-encryption">
+                <div class="enc-layout">
+                    <div class="enc-visual">
+                        <div class="enc-ring-container">
+                            <div class="enc-ring enc-ring-1"></div>
+                            <div class="enc-ring enc-ring-2"></div>
+                            <div class="enc-ring enc-ring-3"></div>
+                            <div class="enc-center">
+                                <div class="enc-center-icon">🔐</div>
+                                <div class="enc-center-text">AES-256-GCM</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 32px; text-align: center;">
+                            <div style="font-size: 13px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">Encryption Status</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--accent-green); font-family: 'JetBrains Mono', monospace;">ACTIVE</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">End-to-end encryption for all broadcast streams</div>
+                        </div>
+                        <div class="enc-data-flow" style="left: 10%; top: 20%;">0x7f3a...9e2d</div>
+                        <div class="enc-data-flow" style="left: 70%; top: 60%; animation-delay: 2s;">0x2b8c...4f1a</div>
+                        <div class="enc-data-flow" style="left: 40%; top: 80%; animation-delay: 4s;">0x9d1e...7c3b</div>
+                        <div class="enc-data-flow" style="left: 80%; top: 30%; animation-delay: 6s;">0x4a5f...2e8d</div>
+                    </div>
+
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div class="panel-title" style="border: none; padding: 0;">Active Keys</div>
+                            <button class="panel-btn" onclick="openModal('rotateKeys')">🔄 Rotate All</button>
+                        </div>
+                        <div class="enc-keys-list" id="keysList"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <div class="footer-left">
+                <div class="footer-stat">
+                    <span>Latency:</span>
+                    <span class="footer-stat-value" id="footerLatency">14ms</span>
+                </div>
+                <div class="footer-stat">
+                    <span>Throughput:</span>
+                    <span class="footer-stat-value" id="footerThroughput">1.2 Gbps</span>
+                </div>
+                <div class="footer-stat">
+                    <span>Packets:</span>
+                    <span class="footer-stat-value" id="footerPackets">8,492/s</span>
+                </div>
+            </div>
+            <div class="footer-right">
+                <span>v4.2.1-build.8922</span>
+                <span class="version-tag">ENTERPRISE</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Add Rule</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer" id="modalFooter"></div>
+        </div>
+    </div>
+
+    <!-- TOASTS -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ===== NAVIGATION =====
+        let currentScreen = 'dashboard';
+
+        function navigateTo(screen) {
+            if (screen === currentScreen) return;
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`[data-screen="${screen}"]`).classList.add('active');
+
+            document.querySelectorAll('.screen').forEach(el => {
+                el.classList.remove('active');
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(20px)';
+            });
+
+            const target = document.getElementById(`screen-${screen}`);
+            target.classList.add('active');
+
+            setTimeout(() => {
+                target.style.opacity = '1';
+                target.style.transform = 'translateX(0)';
+            }, 50);
+
+            const titles = {
+                dashboard: 'Dashboard',
+                firewall: 'Firewall Rules',
+                users: 'User Management',
+                encryption: 'Encryption Keys'
+            };
+            document.getElementById('breadcrumbActive').textContent = titles[screen];
+            currentScreen = screen;
+        }
+
+        // ===== TOASTS =====
+        function showToast(title, type = 'info', desc = '') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icons = {
+                success: '✓',
+                error: '✕',
+                info: 'ℹ',
+                warn: '⚠'
+            };
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    ${desc ? `<div class="toast-desc">${desc}</div>` : ''}
+                </div>
+            `;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => toast.classList.add('show'));
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // ===== MODAL =====
+        function openModal(type) {
+            const overlay = document.getElementById('modalOverlay');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            const footer = document.getElementById('modalFooter');
+
+            if (type === 'addRule') {
+                title.textContent = 'Add Firewall Rule';
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label class="form-label">Rule Name</label>
+                        <input type="text" class="form-input" placeholder="e.g. Block External Admin" id="ruleNameInput">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Source IP / Range</label>
+                        <input type="text" class="form-input" placeholder="0.0.0.0/0 or specific IP" value="0.0.0.0/0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Destination Port</label>
+                        <input type="text" class="form-input" placeholder="80, 443, 8080-8090" value="8080">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Action</label>
+                        <select class="form-select">
+                            <option value="block">BLOCK</option>
+                            <option value="allow">ALLOW</option>
+                            <option value="log">LOG ONLY</option>
+                        </select>
+                    </div>
+                `;
+                footer.innerHTML = `
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="addRule()">Create Rule</button>
+                `;
+            } else if (type === 'addUser') {
+                title.textContent = 'Add New User';
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" placeholder="John Doe" id="userNameInput">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" placeholder="john@neuroshield.tv">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-select">
+                            <option>Viewer</option>
+                            <option>Editor</option>
+                            <option>Admin</option>
+                            <option>Super Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Require 2FA</label>
+                        <div class="toggle active" onclick="this.classList.toggle('active')">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+                `;
+                footer.innerHTML = `
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="addUser()">Create User</button>
+                `;
+            } else if (type === 'rotateKeys') {
+                title.textContent = 'Rotate Encryption Keys';
+                body.innerHTML = `
+                    <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.6; margin-bottom: 16px;">
+                        This will regenerate all encryption keys and re-encrypt all broadcast streams. 
+                        <strong style="color: var(--accent-yellow);">All active sessions will be briefly interrupted.</strong>
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label">Confirm by typing ROTATE</label>
+                        <input type="text" class="form-input" placeholder="Type ROTATE to confirm" id="rotateConfirm">
+                    </div>
+                `;
+                footer.innerHTML = `
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-danger" onclick="rotateKeys()">Rotate Keys</button>
+                `;
+            }
+
+            overlay.classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('open');
+        }
+
+        function addRule() {
+            const name = document.getElementById('ruleNameInput').value || 'New Rule';
+            firewallRules.unshift({
+                name, source: '0.0.0.0/0', dest: '8080', action: 'BLOCK',
+                status: 'active', hits: 0
+            });
+            renderRules();
+            closeModal();
+            showToast('Firewall rule created', 'success');
+            addLog(`Rule "${name}" created`, 'success');
+        }
+
+        function addUser() {
+            const name = document.getElementById('userNameInput').value || 'New User';
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+            users.unshift({
+                name, initials, role: 'Editor', status: 'offline',
+                email: 'new@neuroshield.tv', id: 'USR-' + Math.floor(Math.random()*10000),
+                last: 'Never', ip: '-', color: `hsl(${Math.random()*360}, 70%, 60%)`
+            });
+            renderUsers();
+            closeModal();
+            showToast('User account created', 'success');
+        }
+
+        function rotateKeys() {
+            if (document.getElementById('rotateConfirm').value !== 'ROTATE') {
+                showToast('Type ROTATE to confirm', 'error');
+                return;
+            }
+            closeModal();
+            showToast('Key rotation initiated...', 'info');
+            setTimeout(() => showToast('All keys rotated successfully', 'success', 'Broadcast streams re-encrypted'), 2000);
+            addLog('Encryption keys rotated — AES-256-GCM', 'success');
+        }
+
+        // ===== DASHBOARD: RADAR =====
+        const radarCanvas = document.getElementById('radarCanvas');
+        const radarCtx = radarCanvas.getContext('2d');
+        let radarAngle = 0;
+        const radarThreats = [
+            { angle: 0.8, dist: 0.6, type: 'Brute Force', detected: false },
+            { angle: 2.4, dist: 0.8, type: 'DDoS', detected: false },
+            { angle: 4.1, dist: 0.4, type: 'Injection', detected: false },
+            { angle: 5.2, dist: 0.7, type: 'Malware', detected: false },
+            { angle: 1.5, dist: 0.3, type: 'Port Scan', detected: false }
+        ];
+
+        function resizeRadar() {
+            const parent = radarCanvas.parentElement;
+            radarCanvas.width = parent.clientWidth;
+            radarCanvas.height = parent.clientHeight;
+        }
+
+        function drawRadar() {
+            const w = radarCanvas.width, h = radarCanvas.height;
+            const cx = w/2, cy = h/2;
+            const r = Math.min(w, h) * 0.4;
+
+            radarCtx.clearRect(0, 0, w, h);
+
+            // Rings
+            for (let i = 1; i <= 4; i++) {
+                radarCtx.beginPath();
+                radarCtx.arc(cx, cy, r * i / 4, 0, Math.PI * 2);
+                radarCtx.strokeStyle = `rgba(0, 212, 255, ${0.08 + i * 0.03})`;
+                radarCtx.lineWidth = 1;
+                radarCtx.stroke();
+            }
+
+            // Crosshairs
+            radarCtx.beginPath();
+            radarCtx.moveTo(cx, cy - r); radarCtx.lineTo(cx, cy + r);
+            radarCtx.moveTo(cx - r, cy); radarCtx.lineTo(cx + r, cy);
+            radarCtx.strokeStyle = 'rgba(0, 212, 255, 0.1)';
+            radarCtx.stroke();
+
+            // Diagonals
+            for (let a = 0; a < 4; a++) {
+                const ang = (a * Math.PI) / 4 + Math.PI/4;
+                radarCtx.beginPath();
+                radarCtx.moveTo(cx, cy);
+                radarCtx.lineTo(cx + Math.cos(ang) * r, cy + Math.sin(ang) * r);
+                radarCtx.strokeStyle = 'rgba(0, 212, 255, 0.06)';
+                radarCtx.stroke();
+            }
+
+            // Sweep
+            const sweepGrad = radarCtx.createConicalGradient(cx, cy, radarAngle - 0.3, radarAngle);
+            sweepGrad.addColorStop(0, 'rgba(0, 212, 255, 0)');
+            sweepGrad.addColorStop(0.7, 'rgba(0, 212, 255, 0.05)');
+            sweepGrad.addColorStop(1, 'rgba(0, 212, 255, 0.3)');
+
+            radarCtx.beginPath();
+            radarCtx.moveTo(cx, cy);
+            radarCtx.arc(cx, cy, r, radarAngle - 0.5, radarAngle);
+            radarCtx.lineTo(cx, cy);
+            radarCtx.fillStyle = sweepGrad;
+            radarCtx.fill();
+
+            // Sweep line
+            radarCtx.beginPath();
+            radarCtx.moveTo(cx, cy);
+            radarCtx.lineTo(cx + Math.cos(radarAngle) * r, cy + Math.sin(radarAngle) * r);
+            radarCtx.strokeStyle = 'rgba(0, 212, 255, 0.8)';
+            radarCtx.lineWidth = 2;
+            radarCtx.shadowColor = 'var(--accent-cyan)';
+            radarCtx.shadowBlur = 15;
+            radarCtx.stroke();
+            radarCtx.shadowBlur = 0;
+
+            // Threats
+            radarThreats.forEach(t => {
+                const tx = cx + Math.cos(t.angle) * r * t.dist;
+                const ty = cy + Math.sin(t.angle) * r * t.dist;
+
+                const sweepStart = radarAngle - 0.5;
+                const sweepEnd = radarAngle;
+                let inSweep = false;
+                if (sweepEnd > sweepStart) {
+                    inSweep = t.angle >= sweepStart && t.angle <= sweepEnd;
+                } else {
+                    inSweep = t.angle >= sweepStart || t.angle <= sweepEnd;
+                }
+                if (inSweep) t.detected = true;
+
+                const size = t.detected ? 8 : 5;
+                radarCtx.beginPath();
+                radarCtx.arc(tx, ty, size, 0, Math.PI * 2);
+                radarCtx.fillStyle = t.detected ? 'var(--accent-red)' : 'rgba(255, 23, 68, 0.4)';
+                radarCtx.fill();
+
+                if (t.detected) {
+                    const pulse = 8 + Math.sin(Date.now() / 200) * 5;
+                    radarCtx.beginPath();
+                    radarCtx.arc(tx, ty, pulse, 0, Math.PI * 2);
+                    radarCtx.strokeStyle = 'rgba(255, 23, 68, 0.4)';
+                    radarCtx.lineWidth = 1.5;
+                    radarCtx.stroke();
+
+                    radarCtx.fillStyle = 'var(--accent-red)';
+                    radarCtx.font = '11px "JetBrains Mono"';
+                    radarCtx.fillText(t.type.toUpperCase(), tx + 14, ty - 4);
+                }
+            });
+
+            // Center
+            radarCtx.beginPath();
+            radarCtx.arc(cx, cy, 5, 0, Math.PI * 2);
+            radarCtx.fillStyle = 'var(--accent-cyan)';
+            radarCtx.fill();
+            radarCtx.beginPath();
+            radarCtx.arc(cx, cy, 10, 0, Math.PI * 2);
+            radarCtx.strokeStyle = 'rgba(0, 212, 255, 0.4)';
+            radarCtx.lineWidth = 1;
+            radarCtx.stroke();
+
+            radarAngle += 0.015;
+            if (radarAngle > Math.PI * 2) radarAngle -= Math.PI * 2;
+            requestAnimationFrame(drawRadar);
+        }
+
+        // Polyfill for conical gradient
+        if (!CanvasRenderingContext2D.prototype.createConicalGradient) {
+            CanvasRenderingContext2D.prototype.createConicalGradient = function(x, y, startAngle, endAngle) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 200; canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                return {
+                    addColorStop: () => {},
+                    canvas: canvas
+                };
+            };
+        }
+
+        function runRadarScan() {
+            showToast('Radar scan initiated', 'info');
+            radarThreats.forEach(t => t.detected = false);
+            addLog('Manual radar scan executed', 'info');
+        }
+
+        function clearRadar() {
+            showToast('Radar cleared', 'success');
+            radarThreats.forEach(t => t.detected = false);
+        }
+
+        // ===== THREAT FEED =====
+        const threatData = [
+            { ip: '192.168.1.105', type: 'Brute Force Attack', severity: 'critical', time: '2 min ago' },
+            { ip: '45.142.212.89', type: 'SQL Injection', severity: 'high', time: '5 min ago' },
+            { ip: '103.253.145.22', type: 'DDoS Attempt', severity: 'critical', time: '12 min ago' },
+            { ip: '185.220.101.45', type: 'Port Scan', severity: 'medium', time: '18 min ago' },
+            { ip: '91.219.237.18', type: 'XSS Attempt', severity: 'high', time: '24 min ago' }
+        ];
+
+        function renderThreats() {
+            const feed = document.getElementById('threatFeed');
+            feed.innerHTML = threatData.map(t => `
+                <div class="threat-row">
+                    <div class="threat-info">
+                        <div class="threat-ip">${t.ip}</div>
+                        <div class="threat-desc">${t.type}</div>
+                    </div>
+                    <span class="threat-severity severity-${t.severity}">${t.severity}</span>
+                    <span class="threat-time">${t.time}</span>
+                    <button class="threat-action" onclick="blockThreat('${t.ip}')">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function blockThreat(ip) {
+            showToast(`Blocked ${ip}`, 'success');
+            addLog(`Threat from ${ip} blocked`, 'success');
+            const idx = threatData.findIndex(t => t.ip === ip);
+            if (idx > -1) threatData.splice(idx, 1);
+            renderThreats();
+        }
+
+        function blockAllThreats() {
+            showToast('All threats neutralized', 'success');
+            addLog('Emergency block-all executed', 'success');
+            threatData.length = 0;
+            renderThreats();
+        }
+
+        // ===== ACTIVITY LOG =====
+        const logs = [];
+        function addLog(text, type = 'info') {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            logs.unshift({ time, text, type });
+            if (logs.length > 20) logs.pop();
+            renderLogs();
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('activityLog');
+            container.innerHTML = logs.slice(0, 8).map(l => `
+                <div class="log-entry">
+                    <span class="log-time">${l.time}</span>
+                    <span class="log-text ${l.type}">${l.text}</span>
+                </div>
+            `).join('');
+        }
+
+        // ===== FIREWALL RULES =====
+        let firewallRules = [
+            { name: 'Block External RDP', source: '0.0.0.0/0', dest: '3389', action: 'BLOCK', status: 'active', hits: 8421 },
+            { name: 'Allow HTTPS Inbound', source: '0.0.0.0/0', dest: '443', action: 'ALLOW', status: 'active', hits: 45201 },
+            { name: 'Block Known Bad IPs', source: '103.253.0.0/16', dest: 'Any', action: 'BLOCK', status: 'active', hits: 12304 },
+            { name: 'Admin SSH Access', source: '203.0.113.0/24', dest: '22', action: 'ALLOW', status: 'active', hits: 892 },
+            { name: 'Block Telnet', source: 'Any', dest: '23', action: 'BLOCK', status: 'active', hits: 5602 },
+            { name: 'Stream API Gateway', source: '10.0.0.0/8', dest: '8080', action: 'ALLOW', status: 'active', hits: 28901 },
+            { name: 'Legacy FTP Block', source: 'Any', dest: '21', action: 'BLOCK', status: 'inactive', hits: 0 },
+            { name: 'SNMP Restrict', source: '10.0.0.0/8', dest: '161', action: 'ALLOW', status: 'active', hits: 340 },
+        ];
+
+        let ruleFilter = 'all';
+
+        function renderRules() {
+            const tbody = document.getElementById('rulesTableBody');
+            const filtered = ruleFilter === 'all' ? firewallRules : firewallRules.filter(r => r.status === ruleFilter);
+
+            tbody.innerHTML = filtered.map((r, i) => `
+                <tr>
+                    <td><strong style="color: var(--text-primary);">${r.name}</strong></td>
+                    <td><span style="font-family: 'JetBrains Mono'; font-size: 12px;">${r.source}</span></td>
+                    <td><span style="font-family: 'JetBrains Mono'; font-size: 12px;">${r.dest}</span></td>
+                    <td><span style="font-weight: 600; color: ${r.action === 'BLOCK' ? 'var(--accent-red)' : 'var(--accent-green)'};">${r.action}</span></td>
+                    <td>
+                        <span class="rule-status ${r.status}">
+                            <span class="rule-status-dot"></span>
+                            ${r.status.toUpperCase()}
+                        </span>
+                    </td>
+                    <td><span style="font-family: 'JetBrains Mono';">${r.hits.toLocaleString()}</span></td>
+                    <td>
+                        <div class="rule-actions">
+                            <button class="rule-action-btn" onclick="toggleRule(${i})">⚡</button>
+                            <button class="rule-action-btn" onclick="deleteRule(${i})">🗑</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('totalRules').textContent = firewallRules.length;
+        }
+
+        function filterRules(filter, btn) {
+            ruleFilter = filter;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            renderRules();
+        }
+
+        function toggleRule(idx) {
+            firewallRules[idx].status = firewallRules[idx].status === 'active' ? 'inactive' : 'active';
+            renderRules();
+            showToast(`Rule "${firewallRules[idx].name}" ${firewallRules[idx].status === 'active' ? 'activated' : 'deactivated'}`, 'success');
+        }
+
+        function deleteRule(idx) {
+            const name = firewallRules[idx].name;
+            firewallRules.splice(idx, 1);
+            renderRules();
+            showToast(`Rule "${name}" deleted`, 'success');
+        }
+
+        // Mini charts for firewall
+        function drawMiniChart(id, color, data) {
+            const container = document.getElementById(id);
+            if (!container) return;
+            container.innerHTML = '';
+            data.forEach((val, i) => {
+                const bar = document.createElement('div');
+                bar.className = 'mini-chart-bar';
+                bar.style.left = `${(i / data.length) * 100}%`;
+                bar.style.height = `${val}%`;
+                bar.style.background = color;
+                container.appendChild(bar);
+            });
+        }
+
+        // ===== USERS =====
+        let users = [
+            { name: 'Admin Director', initials: 'AD', role: 'Super Admin', status: 'online', email: 'admin@neuroshield.tv', id: 'USR-8922-AD', last: 'Now', ip: '203.0.113.45', color: 'linear-gradient(135deg, #00d4ff, #ff2d95)' },
+            { name: 'Sarah Chen', initials: 'SC', role: 'Broadcast Engineer', status: 'online', email: 's.chen@neuroshield.tv', id: 'USR-8923-SC', last: '2 min ago', ip: '203.0.113.46', color: 'linear-gradient(135deg, #00e676, #00d4ff)' },
+            { name: 'Marcus Johnson', initials: 'MJ', role: 'Security Analyst', status: 'online', email: 'm.johnson@neuroshield.tv', id: 'USR-8924-MJ', last: '5 min ago', ip: '203.0.113.47', color: 'linear-gradient(135deg, #ff2d95, #ffc400)' },
+            { name: 'Elena Rodriguez', initials: 'ER', role: 'Content Manager', status: 'offline', email: 'e.rodriguez@neuroshield.tv', id: 'USR-8925-ER', last: '3 hours ago', ip: '-', color: 'linear-gradient(135deg, #ffc400, #ff1744)' },
+            { name: 'David Park', initials: 'DP', role: 'Viewer', status: 'offline', email: 'd.park@neuroshield.tv', id: 'USR-8926-DP', last: '1 day ago', ip: '-', color: 'linear-gradient(135deg, #2979ff, #00d4ff)' },
+            { name: 'Unknown Intruder', initials: '??', role: 'Unauthorized', status: 'suspended', email: '-', id: 'USR-0000-XX', last: 'Blocked', ip: '192.168.1.105', color: 'linear-gradient(135deg, #ff1744, #b71c1c)' }
+        ];
+
+        let userFilter = 'all';
+        let selectedUser = users[0];
+
+        function renderUsers() {
+            const list = document.getElementById('usersList');
+            let filtered = users;
+            if (userFilter === 'online') filtered = users.filter(u => u.status === 'online');
+            if (userFilter === 'admin') filtered = users.filter(u => u.role.includes('Admin'));
+
+            list.innerHTML = filtered.map((u, i) => `
+                <div class="user-card ${selectedUser.id === u.id ? 'selected' : ''}" onclick="selectUser(${users.indexOf(u)})">
+                    <div class="user-avatar-lg" style="background: ${u.color};">${u.initials}</div>
+                    <div class="user-info">
+                        <div class="user-name">${u.name}</div>
+                        <div class="user-role">${u.role}</div>
+                    </div>
+                    <div class="user-status ${u.status}">
+                        <span class="status-indicator"></span>
+                        ${u.status}
+                    </div>
+                    <div class="user-last">${u.last}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectUser(idx) {
+            selectedUser = users[idx];
+            document.getElementById('detailAvatar').textContent = selectedUser.initials;
+            document.getElementById('detailAvatar').style.background = selectedUser.color;
+            document.getElementById('detailName').textContent = selectedUser.name;
+            document.getElementById('detailRole').textContent = selectedUser.role;
+            document.getElementById('detailEmail').textContent = selectedUser.email;
+            document.getElementById('detailId').textContent = selectedUser.id;
+            document.getElementById('detail2fa').textContent = selectedUser.status === 'suspended' ? 'SUSPENDED' : 'Enabled (TOTP)';
+            document.getElementById('detail2fa').className = selectedUser.status === 'suspended' ? 'detail-value danger' : 'detail-value success';
+            document.getElementById('detailLast').textContent = selectedUser.last;
+            document.getElementById('detailIP').textContent = selectedUser.ip;
+            renderUsers();
+        }
+
+        function filterUsers(filter, btn) {
+            userFilter = filter;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            renderUsers();
+        }
+
+        // ===== ENCRYPTION KEYS =====
+        const keys = [
+            { name: 'Broadcast Stream Key', algo: 'AES-256-GCM', fingerprint: 'SHA256:a3f7...9e2d', status: 'active', created: '2026-05-20', expires: '2026-08-20' },
+            { name: 'API Gateway Key', algo: 'RSA-4096', fingerprint: 'SHA256:b8c2...4f1a', status: 'active', created: '2026-05-15', expires: '2026-11-15' },
+            { name: 'Admin Session Key', algo: 'AES-256-GCM', fingerprint: 'SHA256:d1e9...7c3b', status: 'active', created: '2026-05-23', expires: '2026-05-24' },
+            { name: 'Backup Encryption', algo: 'AES-256-CBC', fingerprint: 'SHA256:5a4f...2e8d', status: 'rotating', created: '2026-04-01', expires: '2026-07-01' },
+            { name: 'Legacy Stream Key', algo: 'AES-128-CBC', fingerprint: 'SHA256:1c7b...6a4e', status: 'expired', created: '2026-01-01', expires: '2026-04-01' }
+        ];
+
+        function renderKeys() {
+            const list = document.getElementById('keysList');
+            list.innerHTML = keys.map(k => `
+                <div class="key-card">
+                    <div class="key-header">
+                        <span class="key-name">${k.name}</span>
+                        <span class="key-algo">${k.algo}</span>
+                    </div>
+                    <div class="key-fingerprint">${k.fingerprint}</div>
+                    <div class="key-meta">
+                        <span>Created: ${k.created}</span>
+                        <span>Expires: ${k.expires}</span>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span class="key-status ${k.status}">
+                            <span class="status-indicator" style="display: inline-block; margin-right: 6px;"></span>
+                            ${k.status.toUpperCase()}
+                        </span>
+                        <div class="rule-actions" style="opacity: 1;">
+                            <button class="rule-action-btn" onclick="showToast('Key details copied', 'success')">📋</button>
+                            <button class="rule-action-btn" onclick="showToast('Key rotation queued', 'info')">🔄</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== DYNAMIC UPDATES =====
+        function updateStats() {
+            document.getElementById('footerLatency').textContent = Math.floor(Math.random() * 15 + 8) + 'ms';
+            document.getElementById('footerThroughput').textContent = (Math.random() * 0.5 + 0.8).toFixed(1) + ' Gbps';
+            document.getElementById('footerPackets').textContent = Math.floor(Math.random() * 2000 + 7000).toLocaleString() + '/s';
+
+            document.getElementById('blockedToday').textContent = Math.floor(Math.random() * 200 + 3200).toLocaleString();
+            document.getElementById('allowedToday').textContent = Math.floor(Math.random() * 5000 + 85000).toLocaleString();
+        }
+
+        // Auto-generate logs
+        const autoLogs = [
+            { text: 'Packet analysis complete — no anomalies', type: 'success' },
+            { text: 'Incoming connection from 45.142.212.89', type: 'warn' },
+            { text: 'Auto-firewall triggered — IP blacklisted', type: 'success' },
+            { text: 'Encryption key rotation initiated', type: 'info' },
+            { text: 'DDoS mitigation: Rate limiting applied', type: 'success' },
+            { text: 'Suspicious login attempt blocked', type: 'error' },
+            { text: 'Backup verification: All systems green', type: 'success' },
+            { text: 'API endpoint /admin scanned — protected', type: 'warn' },
+            { text: 'SSL certificate renewed successfully', type: 'success' },
+            { text: 'Broadcast stream integrity: 100%', type: 'info' }
+        ];
+
+        function autoLog() {
+            const l = autoLogs[Math.floor(Math.random() * autoLogs.length)];
+            addLog(l.text, l.type);
+
+            // Also add to firewall log occasionally
+            if (Math.random() > 0.6) {
+                const fLog = document.getElementById('firewallLog');
+                const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML = `<span class="log-time">${time}</span><span class="log-text ${l.type}">${l.text}</span>`;
+                fLog.insertBefore(entry, fLog.firstChild);
+                if (fLog.children.length > 10) fLog.removeChild(fLog.lastChild);
+            }
+        }
+
+        // Random threat injection
+        function injectThreat() {
+            if (threatData.length < 8 && Math.random() > 0.6) {
+                const ips = ['185.220.101.45', '91.219.237.18', '198.51.100.22', '203.0.113.77'];
+                const types = ['Port Scan', 'Malware Drop', 'Credential Stuffing', 'XSS Attempt'];
+                const sevs = ['medium', 'high', 'critical'];
+                threatData.unshift({
+                    ip: ips[Math.floor(Math.random() * ips.length)],
+                    type: types[Math.floor(Math.random() * types.length)],
+                    severity: sevs[Math.floor(Math.random() * sevs.length)],
+                    time: 'Just now'
+                });
+                renderThreats();
+                showToast('New threat detected!', 'error');
+            }
+        }
+
+        // ===== INIT =====
+        window.addEventListener('load', () => {
+            resizeRadar();
+            drawRadar();
+            renderThreats();
+            renderLogs();
+            renderRules();
+            renderUsers();
+            renderKeys();
+
+            // Initial logs
+            addLog('System initialized', 'info');
+            addLog('Firewall modules loaded', 'success');
+            addLog('Encryption: AES-256-GCM active', 'success');
+            addLog('Threat detected: Port scan from 192.168.1.105', 'warn');
+            addLog('Auto-block engaged', 'success');
+
+            drawMiniChart('rulesChart', 'var(--accent-cyan)', [30, 45, 35, 50, 40, 60, 55, 70, 65, 80]);
+            drawMiniChart('blockedChart', 'var(--accent-red)', [20, 30, 25, 40, 35, 50, 45, 60, 55, 70]);
+            drawMiniChart('allowedChart', 'var(--accent-green)', [60, 70, 65, 80, 75, 85, 80, 90, 85, 95]);
+
+            setInterval(updateStats, 3000);
+            setInterval(autoLog, 4000);
+            setInterval(injectThreat, 10000);
+        });
+
+        window.addEventListener('resize', resizeRadar);
+
+        // Search functionality
+        document.getElementById('globalSearch').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            if (val.length > 2) {
+                showToast(`Searching for "${val}"...`, 'info');
+            }
+        });
+    </script>
+</body>
+
+</html>
